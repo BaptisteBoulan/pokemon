@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3f1abf8dd9ccde41a34996e8f7f7f51, type: 3}
+  m_Name: Wartortle
+  m_EditorClassIdentifier: 
+  name: Wartortle
+  description: A water-type Pokemon
+  frontSprite: {fileID: 21300000, guid: 9b0e6fc5f36b9ec4197e23d680b3707a, type: 3}
+  backSprite: {fileID: 21300000, guid: 1287bcbc279066d459ff39bc3b587760, type: 3}
+  type1: 2
+  type2: 0
+  maxHP: 60
+  attack: 58
+  defense: 75
+  speAttack: 60
+  speDefense: 60
+  speed: 53
+  xpYield: 600
+  growthRate: 1
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: 1dc30e250f5f8484e9b39b8c5addb076, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 6fd2037749f93b44484992c530f25c7c, type: 2}
+    level: 7
+  - moveBase: {fileID: 11400000, guid: c9325b307dd7dd54e8ea9cf248a2df75, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 270102c4d665cec46a3f30f7bcda32c8, type: 2}
+    level: 10
+  learnableByItems:
+  - {fileID: 11400000, guid: 664f246ca4bbd93468dbbcf253ff9914, type: 2}
+  - {fileID: 11400000, guid: 6f853d3fbd0b4b3419722f1077420fb4, type: 2}
+  evolutions: []
+  catchRate: 150

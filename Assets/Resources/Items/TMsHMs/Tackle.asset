@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2aa21fad6418184eaec6af1ec0dc4d6, type: 3}
+  m_Name: Tackle
+  m_EditorClassIdentifier: 
+  name: TM-2
+  description: Teaches tackle to a pokemon
+  icon: {fileID: -1140449612, guid: 3ae12697ae504414bbf0797ea36dfddd, type: 3}
+  move: {fileID: 11400000, guid: 40b3045e006d16a4faee0ff79386639f, type: 2}
+  isHm: 0

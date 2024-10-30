@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c7b7329e6e27454bbe9026325131533, type: 3}
+  m_Name: SuperPotion
+  m_EditorClassIdentifier: 
+  name: Super Portion
+  description: Restores a few HPs of a pokemon
+  icon: {fileID: -1743683463, guid: 23ee9f9de39b4f04bb1a251c800478ec, type: 3}
+  price: 50
+  isSellable: 1
+  hpAmount: 50
+  restoreMaxHp: 0
+  ppAmount: 0
+  restoreMaxPp: 0
+  status: 0
+  recoverAllStatus: 0
+  revive: 0
+  maxRevive: 0

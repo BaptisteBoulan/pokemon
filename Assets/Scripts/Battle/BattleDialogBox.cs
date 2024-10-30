@@ -1,0 +1,126 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BattleDialogBox : MonoBehaviour
+{
+    [SerializeField] Text dialogText;
+    [SerializeField] int lettersperSecond;
+
+    [SerializeField] GameObject actionSelector;
+    [SerializeField] GameObject moveSelector;
+    [SerializeField] GameObject moveDetails;
+    [SerializeField] GameObject choiceBox;
+
+    [SerializeField] List<Text> actionTexts;
+    [SerializeField] List<Text> moveTexts;
+
+    [SerializeField] Text ppText;
+    [SerializeField] Text type;
+
+    [SerializeField] Text yesText;
+    [SerializeField] Text noText;
+
+    public void SetDialog(string dialog)
+    {
+        dialogText.text = dialog;
+    }
+
+    public IEnumerator TypeDialog(string dialog)
+    {
+        dialogText.text = "";
+        foreach (var letter in dialog.ToCharArray())
+        {
+            dialogText.text += letter;
+            yield return new WaitForSeconds(1f / lettersperSecond);
+        }
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    public void EnableDialog(bool enabled)
+    {
+        dialogText.enabled = enabled;
+    }
+
+    public void EnableChoice(bool enabled)
+    {
+        choiceBox.SetActive(enabled);
+    }
+
+    public void EnableActionSelector(bool enabled)
+    {
+        actionSelector.SetActive(enabled);
+    }
+
+    public void EnableMoveSelector(bool enabled)
+    {
+        moveSelector.SetActive(enabled);
+        moveDetails.SetActive(enabled);
+    }
+
+    public void  UpdateActionSelection(int selectedAction) 
+    { 
+        for (int i = 0;i < actionTexts.Count; i++) 
+        {
+            if (i == selectedAction)
+            {
+                actionTexts[i].color = GlobalSettings.i.HighlightedColor;
+            } else
+            {
+                actionTexts[i].color = Color.black;
+            }
+        }
+    }
+
+    public void UpdatechoiceBoxSelection(bool yes)
+    {
+        if (yes)
+        {
+            yesText.color = GlobalSettings.i.HighlightedColor;
+            noText.color = Color.black;
+        }
+        else
+        {
+            noText.color = GlobalSettings.i.HighlightedColor;
+            yesText.color = Color.black;
+        }
+    }
+
+    public void UpdateMoveSelection(int selectedMove, Move move)
+    {
+        for (int i = 0; i < moveTexts.Count; i++)
+        {
+            if (i == selectedMove)
+            {
+                moveTexts[i].color = GlobalSettings.i.HighlightedColor;
+            }
+            else
+            {
+                moveTexts[i].color = Color.black;
+            }
+        }
+        if (move.PP <= 0) ppText.color = Color.red;
+        else ppText.color = Color.black;
+
+        ppText.text = $"PP {move.PP}/{move.Base.MaxPP}";
+        type.text = move.Base.Type.ToString();
+    }
+
+
+    public void SetMoveNames(List<Move> moves)
+    {
+        for (int i = 0; i< moveTexts.Count; i++)
+        {
+            if (i < moves.Count)
+            {
+                moveTexts[i].text = moves[i].Base.Name;
+            } 
+            else 
+            {
+                moveTexts[i].text = "-";
+            }
+        }
+    }
+}

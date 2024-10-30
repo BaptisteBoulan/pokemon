@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3f1abf8dd9ccde41a34996e8f7f7f51, type: 3}
+  m_Name: Charmander
+  m_EditorClassIdentifier: 
+  name: Charmander
+  description: A fire-type Pokemon
+  frontSprite: {fileID: 21300000, guid: cd259d9d4f8ba2749a16d1cc64d46bec, type: 3}
+  backSprite: {fileID: 21300000, guid: ed8e1d9976a1fd94d961840d8f6e7764, type: 3}
+  type1: 3
+  type2: 0
+  maxHP: 39
+  attack: 52
+  defense: 43
+  speAttack: 50
+  speDefense: 50
+  speed: 65
+  xpYield: 400
+  growthRate: 0
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: 6f853d3fbd0b4b3419722f1077420fb4, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 1ce367a7685ac484c8036418148f7451, type: 2}
+    level: 15
+  - moveBase: {fileID: 11400000, guid: 664f246ca4bbd93468dbbcf253ff9914, type: 2}
+    level: 7
+  - moveBase: {fileID: 11400000, guid: 6fd2037749f93b44484992c530f25c7c, type: 2}
+    level: 15
+  learnableByItems:
+  - {fileID: 11400000, guid: 6f853d3fbd0b4b3419722f1077420fb4, type: 2}
+  evolutions: []
+  catchRate: 150

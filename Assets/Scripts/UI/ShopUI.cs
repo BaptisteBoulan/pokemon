@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum BuyState { Choosing, Busy}
 public class ShopUI : MonoBehaviour
 {
     [SerializeField] GameObject itemList;
@@ -25,19 +25,18 @@ public class ShopUI : MonoBehaviour
     const int itemInViewPort = 6;
     RectTransform itemListRect;
 
-    BuyState state;
-
     bool showUpArrow;
     bool showDownArrow;
 
-    public event Action OnClose;
+    public Action OnClose;
+    public Action<ItemBase> OnBuy;
 
     private void Awake()
     {
         itemListRect = itemList.GetComponent<RectTransform>();
     }
 
-    public void Show(List<ItemBase> availablesItems)
+    public void Show(List<ItemBase> availablesItems,Action<ItemBase> OnBuy, Action OnClose)
     {
         gameObject.SetActive(true);
 
@@ -45,7 +44,8 @@ public class ShopUI : MonoBehaviour
 
         UpdateItemList();
 
-        state = BuyState.Choosing;
+        this.OnBuy = OnBuy;
+        this.OnClose = OnClose;
     }
 
     public void Close()
@@ -117,38 +117,28 @@ public class ShopUI : MonoBehaviour
 
     public void HandleUpdate()
     {
-        if (state == BuyState.Choosing)
+        var prevSelectedItem = selectedItem;
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+            selectedItem++;
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            selectedItem--;
+
+        if (prevSelectedItem != selectedItem)
+            UpdateItemSelection();
+
+
+        if (Input.GetKeyDown(KeyCode.X))
         {
-            var prevSelectedItem = selectedItem;
-
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-                selectedItem++;
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
-                selectedItem--;
-
-            if (prevSelectedItem != selectedItem)
-                UpdateItemSelection();
-
-
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                Close();
-                OnClose?.Invoke();
-            }
-            else if (Input.GetKeyDown(KeyCode.Return))
-            {
-                state = BuyState.Busy;
-                StartCoroutine(BuyItem(availablesItems[selectedItem]));
-            }
-
-            upArrow.gameObject.SetActive(showUpArrow);
-            downArrow.gameObject.SetActive(showDownArrow);
+            Close();
+            OnClose?.Invoke();
         }
-    }
+        else if (Input.GetKeyDown(KeyCode.Return))
+        {
+            OnBuy?.Invoke(availablesItems[selectedItem]);
+        }
 
-    IEnumerator BuyItem(ItemBase item)
-    {
-        yield return ShopController.instance.BuyItem(item);
-        state = BuyState.Choosing;
+        upArrow.gameObject.SetActive(showUpArrow);
+        downArrow.gameObject.SetActive(showDownArrow);
     }
 }

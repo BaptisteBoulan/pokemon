@@ -1258,6 +1258,7 @@ GameObject:
   - component: {fileID: 3270877600388940700}
   - component: {fileID: 85327793670844402}
   - component: {fileID: 5723902226715725088}
+  - component: {fileID: 4311663837196579101}
   m_Layer: 0
   m_Name: BattleSystem
   m_TagString: Untagged
@@ -1345,6 +1346,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee7dbede0eb900b44b8fbaf7a8ce795b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4311663837196579101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431153029934966900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40c1a8f6ef75dbb429ebcb097c198591, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2757663049321977873
 GameObject:
   m_ObjectHideFlags: 0
@@ -1368,6 +1381,11 @@ GameObject:
   - component: {fileID: 5979321936764096587}
   - component: {fileID: 1971008374022934215}
   - component: {fileID: 6258229232490475073}
+  - component: {fileID: 904490946319827240}
+  - component: {fileID: 1075415120818040691}
+  - component: {fileID: 5626051212271174038}
+  - component: {fileID: 7408615723593027319}
+  - component: {fileID: 5972666475972371836}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -1559,10 +1577,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2757663049321977873}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c868e5b3efb346a42be05799d67a11b0, type: 3}
+  m_Script: {fileID: 11500000, guid: b848d33bad6ddd04a8bc9eabb1d481d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   partyScreen: {fileID: 2402067176456264}
+  SelectedPokemon:
+    _base: {fileID: 0}
+    level: 0
 --- !u!114 &1358558182522569390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1616,6 +1637,78 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   battleSystem: {fileID: 2904576276305235214}
+--- !u!114 &904490946319827240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757663049321977873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 915ccc66a5092764589240e00d20bc9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1075415120818040691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757663049321977873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eabc9145f20168418ad24ecf34351ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5626051212271174038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757663049321977873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a508a94d7969d488e4ac3747e77b1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryUI: {fileID: 6675245670214338861}
+  walletUI: {fileID: 8029759274308607501}
+  countSelectorUI: {fileID: 2322892903120718204}
+  shopUI: {fileID: 2983331830741089640}
+--- !u!114 &7408615723593027319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757663049321977873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d01028b5a78dec24f823a2c978b4f93f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryUI: {fileID: 6675245670214338861}
+  walletUI: {fileID: 8029759274308607501}
+  countSelectorUI: {fileID: 2322892903120718204}
+  shopUI: {fileID: 2983331830741089640}
+--- !u!114 &5972666475972371836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757663049321977873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80797e6b663b53846980e390fcb56f07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryUI: {fileID: 6675245670214338861}
+  walletUI: {fileID: 8029759274308607501}
+  countSelectorUI: {fileID: 2322892903120718204}
+  shopUI: {fileID: 2983331830741089640}
 --- !u!1 &2758842234580440438
 GameObject:
   m_ObjectHideFlags: 0

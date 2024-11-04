@@ -42,20 +42,48 @@ public class ActionSelectionState : State<BattleSystem>
     {
         if (selection == 0)
         {
+            // Fight
             bs.SelectedAction = BattleAction.Move;
             MoveSelectionState.i.Moves = bs.PlayerUnit.Pokemon.Moves;
             bs.StateMachine.ChangeState(MoveSelectionState.i);
         } else if (selection == 1)
         {
-            bs.SelectedAction = BattleAction.SwitchPokemon;
+            // Bag
+            StartCoroutine(GoToInventoryState());
         }
         else if (selection == 2)
         {
-            bs.SelectedAction = BattleAction.UseItem;
+            // Pokemon
+            StartCoroutine(GoToPartyState());
         }
         else if (selection == 3)
         {
+            // Run
             bs.SelectedAction = BattleAction.Run;
+            bs.StateMachine.ChangeState(RunTurnsState.i);
+        }
+    }
+
+    IEnumerator GoToPartyState()
+    {
+        yield return GameController.Instance.StateMachine.PushAndWait(PartyState.i);
+        var pokemon = PartyState.i.SelectedPokemon;
+        if (pokemon != null)
+        {
+            bs.SelectedAction = BattleAction.SwitchPokemon;
+            bs.SelectedPokemon = pokemon;
+            bs.StateMachine.ChangeState(RunTurnsState.i);
+        }
+    }
+
+    IEnumerator GoToInventoryState()
+    {
+        yield return GameController.Instance.StateMachine.PushAndWait(InventoryState.i);
+        var item = InventoryState.i.SelectedItem;
+        if (item != null)
+        {
+            bs.SelectedAction = BattleAction.UseItem;
+            bs.SelectedItem = item;
             bs.StateMachine.ChangeState(RunTurnsState.i);
         }
     }

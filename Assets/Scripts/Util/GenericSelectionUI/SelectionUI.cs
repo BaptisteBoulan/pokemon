@@ -110,6 +110,13 @@ namespace Utils.GenericSelectionUI
             if (selectionTimer > 0f)
                 selectionTimer = Mathf.Clamp(selectionTimer - Time.deltaTime,0,1);
         }
+
+        public void ClearItems()
+        {
+            items.ForEach(i => i.Clear());
+
+            this.items = null;
+        }
     }
 }
 

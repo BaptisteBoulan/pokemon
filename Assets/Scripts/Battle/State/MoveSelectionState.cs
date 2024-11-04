@@ -31,6 +31,7 @@ public class MoveSelectionState : State<BattleSystem>
 
     public override void Exit()
     {
+        moveSelectionUI.ClearItems();
         moveSelectionUI.OnSelected -= OnMoveSelected;
         moveSelectionUI.OnBack -= OnBack;
 

@@ -61,7 +61,7 @@ public class PokemonParty : MonoBehaviour
             var evolutionPokemon = pkmn.CheckForEvolution();
             if (evolutionPokemon != null)
             {
-                yield return EvolutionManager.i.Evolve(pkmn, evolutionPokemon);
+                yield return EvolutionState.i.Evolve(pkmn, evolutionPokemon);
                 OnUpdated?.Invoke();
             }
         }

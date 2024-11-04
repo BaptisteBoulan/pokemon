@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utils.StateMachine;
 
-public class GamePartyState : State<GameController>
+public class PartyState : State<GameController>
 {
     [SerializeField] PartyScreen partyScreen;
 
-    public static GamePartyState i { get; private set; }
+    public Pokemon SelectedPokemon;
+
+    public static PartyState i { get; private set; }
 
     private void Awake()
     {
@@ -22,6 +24,8 @@ public class GamePartyState : State<GameController>
 
         partyScreen.OnSelected += OnPokemonSelected;
         partyScreen.OnBack += OnQuitPartyScreen;
+
+        SelectedPokemon = null;
     }
 
     public override void Exit() 
@@ -50,6 +54,22 @@ public class GamePartyState : State<GameController>
         {
             // show summary
             Debug.Log("summary " + selection);
+        } else if (prevState == BattleState.i)
+        {
+            var battleState = prevState as BattleState;
+            SelectedPokemon = partyScreen.SelectedMember;
+            if (SelectedPokemon.HP <= 0)
+            {
+                partyScreen.SetMessageText("You can't send out a fainted Pokemon to battle...");
+                return;
+            }
+            if (SelectedPokemon == battleState.BattleSystem.PlayerUnit.Pokemon)
+            {
+                partyScreen.SetMessageText($"{SelectedPokemon.Base.Name} already in battle.");
+                return;
+            }
+
+            gc.StateMachine.Pop();
         }
     }
 
@@ -61,6 +81,19 @@ public class GamePartyState : State<GameController>
 
     void OnQuitPartyScreen()
     {
+        var prevState = gc.StateMachine.GetPreviousState();
+
+        SelectedPokemon = null;
+
+        if (prevState == BattleState.i)
+        {
+            var battleState = prevState as BattleState;
+            if (battleState.BattleSystem.PlayerUnit.Pokemon.HP <= 0)
+            {
+                partyScreen.SetMessageText("Do not try to run, you coward !");
+                return;
+            }
+        }
         gc.StateMachine.Pop();
     }
 }

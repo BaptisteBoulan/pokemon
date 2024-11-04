@@ -29,10 +29,9 @@ public class GameController : MonoBehaviour
     }
     public PlayerController Player => playerController;
     public Camera WorldCamera => worldCamera;
+    public PartyScreen PartyScreen => partyScreen;
 
     public StateMachine<GameController> StateMachine { get; private set; }
-
-    private TrainerController trainer;
 
     public static GameController Instance { get; private set; }
 
@@ -55,14 +54,12 @@ public class GameController : MonoBehaviour
 
         DialogManager.Instance.OnShowDialog += () =>
         {
-            prevState = state;
-            state = GameState.Dialog;
+            StateMachine.Push(DialogState.i);
         };
 
         DialogManager.Instance.OnCloseDialog += () =>
         {
-            if (state == GameState.Dialog)
-                state = prevState;
+            StateMachine.Pop();
         };
 
         ShopController.instance.OnStart += () => state = GameState.Shop;
@@ -81,7 +78,6 @@ public class GameController : MonoBehaviour
 
     public void OnEnterTrainerView(TrainerController trainer)
     {
-        state = GameState.Cutscene;
         StartCoroutine(trainer.TriggerTrainerBattle(playerController));
     }
 
@@ -99,20 +95,6 @@ public class GameController : MonoBehaviour
     private void Update()
     {
         StateMachine.Execute();
-
-        if (state == GameState.Cutscene)
-        {
-            playerController.Character.HandleUpdtate();
-        }
-        else if (state == GameState.Dialog)
-        {
-            DialogManager.Instance.handleUpdate();
-        }
-        else if (state == GameState.Shop)
-        {
-            ShopController.instance.HandleUpdate();
-        }
-
     }
     public void PauseGame(bool pause)
     {
@@ -132,40 +114,6 @@ public class GameController : MonoBehaviour
         PrevScene = CurrentScene;
         CurrentScene = scene;
     }
-
-    void OnMenuSelected(int selected)
-    {
-        if (selected == 0)
-        {
-            // pokmeon
-            partyScreen.gameObject.SetActive(true); 
-            state = GameState.PartyScreen;
-        } 
-        else if (selected == 1)
-        {
-            // bag
-            inventoryUI.gameObject.SetActive(true);
-            state = GameState.Bag;
-        }
-        else if (selected == 2)
-        {
-            // Save
-            SavingSystem.i.Save("SaveSlot1");
-            state = GameState.FreeRoam;
-        }
-        else if (selected == 3)
-        {
-            // Load
-            SavingSystem.i.Load("SaveSlot1");
-            state = GameState.FreeRoam;
-        }
-        else if (selected == 4)
-        {
-            // Exit
-            Application.Quit();
-        }
-    }
-
     public void StartCutScene()
     {
         state = GameState.Cutscene;

@@ -15,6 +15,8 @@ public class MoveSelectionUI : SelectionUI<TextSlot>
 
     public void SetMoves(List<Move> moves)
     {
+        selectedItem = 0;
+
         this.moves = moves;
         SetSelectionType(SelectionType.Grid, 2);
         SetItems(moveTexts.Take(moves.Count).ToList());

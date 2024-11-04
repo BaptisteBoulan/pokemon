@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utils.StateMachine;
 
@@ -47,28 +49,6 @@ public class RunTurnsState : State<BattleSystem>
         
     }
 
-    public override void Execute()
-    {
-        
-    }
-
-    /*
- *  Manage BattleTurns
- * 
- *  First sets BattleState to RunningTurns
- * 
- *  then depending of the parameter "player action" (BattleAction) :
- *  Move => decide who goes first, then execute RunTurn in the right order
- *  SwitchPokemon => RunTurns was executed after the choice of the pokemon
- *                => execute switchPokemon function that :
- *                  - plays the animation, 
- *                  - eventualy sends the next trainers pokemons
- *                  - sets the battleUnit and goes back to running turns
- *  UseItem => TrowPokemon
- *  Run => TryToEscape
- *  => For the last three : runTurn and runAfterTurn for the ennemy
- *  Finally if the BattleState is not Over : Go to ActionSlection (sets BattleState.ActionSlection)
- */
     IEnumerator RunTurns(BattleAction playerAction)
     {
         if (playerAction == BattleAction.Move)
@@ -109,13 +89,19 @@ public class RunTurnsState : State<BattleSystem>
         {
             if (playerAction == BattleAction.SwitchPokemon)
             {
-                var selectedPokemon = partyScreen.SelectedMember;
-                // yield return SwitchPokemon(selectedPokemon);
+                yield return bs.SwitchPokemon(bs.SelectedPokemon);
             }
             else if (playerAction == BattleAction.UseItem)
             {
-                // Handle by inventoryUI
-                dialogBox.EnableActionSelector(false);
+                if (bs.SelectedItem is PokeballItem)
+                {
+                    yield return bs.ThrowPokeball(bs.SelectedItem as PokeballItem);
+                    if (bs.IsBattleOver) yield break;
+                }
+                else
+                {
+                    // Handled by the state
+                }
             }
             else if (playerAction == BattleAction.Run)
             {
@@ -136,7 +122,6 @@ public class RunTurnsState : State<BattleSystem>
     }
 
 
-    // Move
     IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
     {
         bool canRunMove = sourceUnit.Pokemon.OnBeforeMove();
@@ -191,8 +176,6 @@ public class RunTurnsState : State<BattleSystem>
         }
     }
 
-
-    // At the very beggining : calls the status chage and displays it
     IEnumerator ShowStatusChange(Pokemon pokemon)
     {
         while (pokemon.StatusChanges.Count > 0)
@@ -202,9 +185,6 @@ public class RunTurnsState : State<BattleSystem>
         }
     }
 
-    // 1. Calls "OnBeforeMove" to check if the pokemon is able to attack due to status effects : retruns a bool
-
-    // 2. Check if move hits : depending on the accuracy, retruns a boolean
     bool CheckIfMoveHits(Move move, Pokemon source, Pokemon target)
     {
         if (move.Base.AlwaysHits) return true;
@@ -237,11 +217,6 @@ public class RunTurnsState : State<BattleSystem>
         return UnityEngine.Random.Range(0, 100) < moveAccuracy;
     }
 
-    /*
-     * 3. Apply the damages : Pokemon.TakeDamage (physical and special) and RunMoveEffects for the status
-     *      Calls ShowDamageDetails to display the text (no real action)
-     *      RunMoveEffects firsts applies the stats boosts, then the conditions and finally the confusion
-     */
     IEnumerator ShowDamageDetails(DamageDetails damageDetails)
     {
         if (damageDetails.Critical > 1.5f)
@@ -288,24 +263,6 @@ public class RunTurnsState : State<BattleSystem>
         yield return ShowStatusChange(target);
     }
 
-
-    // 4. Apply secondary effects
-
-    /* 
-     * 5. Check if the ennemy fainted and if true, call HandleFaintedPokemon
-     *      1. Play faint animation
-     *      2. If it is the ennemy's : 
-     *          XP gain, level up, 
-     *          learn new move, 
-     *          eventually calls MoveToForget that sets BattleState.MoveToForget
-     *      3. If it is the player's :
-     *          Calls CheckForBattleOver function :
-     *              if player and other pokemons    : OpenPartyScreen
-     *              if player and no other pokemons : BattleOver(false) (means defeat)
-     *              if wild                         : BattleOver(true)  (means victory)
-     *              if Trainer and other pokemons   : AboutToUse
-     *              if trainer and no other pokemons: BattleOver(true)  (means victory)
-     */
     IEnumerator HandleFaintedPokemon(BattleUnit faintedUnit)
     {
         faintedUnit.PlayFaintAnimation();
@@ -344,12 +301,32 @@ public class RunTurnsState : State<BattleSystem>
                     }
                     else
                     {
-                        /*// Forget a move
-                        yield return dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} is trying to learn {newMove.Base.Name} !");
-                        yield return dialogBox.TypeDialog($"But {playerUnit.Pokemon.Base.Name} already knows four moves...");
-                        yield return ChooseMoveToForget(playerUnit.Pokemon, newMove.Base);
-                        yield return new WaitUntil(() => state != BattleState_.MoveToForget);
-                        yield return new WaitForSeconds(1.5f);*/
+                        var pokemon = playerUnit.Pokemon;
+
+                        // Forget a move
+                        yield return dialogBox.TypeDialog($"{pokemon.Base.Name} is trying to learn {newMove.Base.Name} !");
+                        yield return dialogBox.TypeDialog($"But {pokemon.Base.Name} already knows four moves...");
+                        yield return dialogBox.TypeDialog($"Choose a move to forget");
+
+                        MoveToForgetState.i.NewMove = newMove.Base;
+                        MoveToForgetState.i.CurrentMoves = pokemon.Moves.Select(m => m.Base).ToList();
+                        yield return GameController.Instance.StateMachine.PushAndWait(MoveToForgetState.i);
+
+                        int moveIndex = MoveToForgetState.i.Selection;
+
+                        if (moveIndex == PokemonBase.MaxMoveNumber || moveIndex == -1)
+                        {
+                            // dont learn new move
+                            yield return dialogBox.TypeDialog($"{pokemon.Base.Name} did not learn {newMove.Base.Name}");
+                        }
+                        else
+                        {
+                            // forget selected move
+                            var forgottenMove = pokemon.Moves[moveIndex].Base.Name;
+                            pokemon.Moves[moveIndex] = new Move(newMove.Base);
+                            yield return dialogBox.TypeDialog($"{pokemon.Base.Name} forgot {forgottenMove} and learnt {newMove.Base.Name} !");
+
+                        }
                     }
                 }
 
@@ -358,15 +335,9 @@ public class RunTurnsState : State<BattleSystem>
             yield return new WaitForSeconds(1f);
         }
 
-        CheckForBattleOver(faintedUnit);
+        yield return CheckForBattleOver(faintedUnit);
     }
 
-    /*
-     * After RunTurn, RunTurns calls Run AfterTurn
-     * Only if battle is not over
-     * calls OnAfterTurn for the source pokemon (invoke the effect of status and volatile status)
-     * eventualy calls HandleFaintedPokemon
-     */
     IEnumerator RunAfterTurn(BattleUnit sourceUnit)
     {
         if (bs.IsBattleOver) yield break;
@@ -380,8 +351,7 @@ public class RunTurnsState : State<BattleSystem>
             yield return HandleFaintedPokemon(sourceUnit);
         }
     }   
-    
-    // Called by RunTurns on PlayerAction Run : compute the chances of escape
+
     public IEnumerator TryToEscape()
     {
         if (isTrainerBattle)
@@ -408,14 +378,16 @@ public class RunTurnsState : State<BattleSystem>
         }
     }
 
-    void CheckForBattleOver(BattleUnit faintedUnit)
+    IEnumerator CheckForBattleOver(BattleUnit faintedUnit)
     {
         if (faintedUnit.IsPlayerUnit)
         {
             var nextPokemon = bs.PlayerParty.GetHealthyPokemon();
+            Debug.Log(nextPokemon.Base.Name);
             if (nextPokemon != null)
             {
-                // bs.OpenPartyScreen();
+                yield return GameController.Instance.StateMachine.PushAndWait(PartyState.i);
+                yield return bs.SwitchPokemon( PartyState.i.SelectedPokemon);
             }
             else
             {
@@ -431,7 +403,8 @@ public class RunTurnsState : State<BattleSystem>
                 var nextPokemon = bs.TrainerParty.GetHealthyPokemon();
                 if (nextPokemon != null)
                 {
-                    // StartCoroutine(AboutToUse(nextPokemon));
+                    AboutToUseState.i.NewPokemon = nextPokemon;
+                    yield return bs.StateMachine.PushAndWait(AboutToUseState.i);
                 }
                 else bs.BattleOver(true);
             }

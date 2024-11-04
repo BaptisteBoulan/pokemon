@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Xml;
+using Utils.StateMachine;
 
-public class EvolutionManager : MonoBehaviour
+public class EvolutionState : State<GameController>
 {   [SerializeField] Image background;
     [SerializeField] Image pokemonSprite;
     [SerializeField] List<Sprite> spriteList;
@@ -15,7 +17,7 @@ public class EvolutionManager : MonoBehaviour
     PokemonBase daddyPokemon;
 
    
-    public static EvolutionManager i;
+    public static EvolutionState i;
 
     private void Awake()
     {
@@ -23,6 +25,12 @@ public class EvolutionManager : MonoBehaviour
         animator = new CanvasAnimator(background,spriteList);
     }
 
+    GameController gc;
+
+    private void Start()
+    {
+        gc = GameController.Instance;
+    }
 
     public void SetupData(Pokemon baby, PokemonBase daddy)
     {
@@ -40,8 +48,11 @@ public class EvolutionManager : MonoBehaviour
 
     }
 
+
     public IEnumerator Evolve(Pokemon baby, PokemonBase daddy)
     {
+        gc.StateMachine.Push(this);
+
         SetupData(baby, daddy);
 
         background.gameObject.SetActive(true);
@@ -58,6 +69,10 @@ public class EvolutionManager : MonoBehaviour
         yield return DialogManager.Instance.ShowDialogText($"{babyName} evolved into {daddyPokemon.Name} !");
 
         background.gameObject.SetActive(false);
+
+        gc.PartyScreen.SetPartyData();
+
+        gc.StateMachine.Pop();
     }
 
     private IEnumerator PlayEvolveAnimation()

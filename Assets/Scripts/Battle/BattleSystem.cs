@@ -10,19 +10,6 @@ using UnityEngine.UIElements;
 using Utils.StateMachine;
 using static UnityEngine.EventSystems.EventTrigger;
 
-public enum BattleState_
-{
-    Start,
-    ActionSelection,
-    MoveSelection,
-    RunningTurn,
-    PartyScreen, 
-    Bag,
-    BattleOver,
-    AboutToUse,
-    MoveToForget,
-    Busy
-}
 public enum BattleAction
 {
     Move,
@@ -52,7 +39,6 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] InventoryUI inventoryUI;
 
     // Battle states
-    BattleState_ state;
     public StateMachine<BattleSystem> StateMachine { get; private set; }
 
     // Menu choices
@@ -68,7 +54,7 @@ public class BattleSystem : MonoBehaviour
 
     public bool IsTrainerBattle = false;
     PlayerController player;
-    TrainerController trainer;
+    public TrainerController Trainer { get; private set; }
 
     public int NumberOfEscapeAttempt { get; set; }
 
@@ -79,11 +65,10 @@ public class BattleSystem : MonoBehaviour
     public BattleUnit PlayerUnit => playerUnit;
     public BattleUnit EnemyUnit => enemyUnit;
     public PartyScreen PartyScreen => partyScreen;
-
-
-
     public int SelectedMove { get; set; }
     public BattleAction SelectedAction { get; set; }
+    public Pokemon SelectedPokemon { get; set; }
+    public ItemBase SelectedItem { get; set; }
     public bool IsBattleOver { get; private set; }
 
     // Battle initialization
@@ -109,7 +94,7 @@ public class BattleSystem : MonoBehaviour
         IsTrainerBattle = true;
 
         player = playerParty.GetComponent<PlayerController>();
-        trainer = trainerParty.GetComponent<TrainerController>();
+        Trainer = trainerParty.GetComponent<TrainerController>();
 
         // Will be changed
         background.sprite = backgroundImages[0];
@@ -118,7 +103,6 @@ public class BattleSystem : MonoBehaviour
     }
     public IEnumerator SetupBattle()
     {
-        Debug.Log("set up");
         StateMachine = new StateMachine<BattleSystem>(this);
 
         playerUnit.Clear();
@@ -142,9 +126,9 @@ public class BattleSystem : MonoBehaviour
             trainerImage.gameObject.SetActive(true);
 
             playerImage.sprite = player.Sprite;
-            trainerImage.sprite = trainer.Sprite;
+            trainerImage.sprite = Trainer.Sprite;
 
-            yield return dialogBox.TypeDialog($"{trainer.Name} wants to fight you !");
+            yield return dialogBox.TypeDialog($"{Trainer.Name} wants to fight you !");
 
 
             trainerImage.gameObject.SetActive(false);
@@ -153,7 +137,7 @@ public class BattleSystem : MonoBehaviour
             var enemyPokemon = TrainerParty.GetHealthyPokemon();
             enemyUnit.Setup(enemyPokemon);
 
-            yield return dialogBox.TypeDialog($"{trainer.Name} sends out {enemyPokemon.Base.Name}");
+            yield return dialogBox.TypeDialog($"{Trainer.Name} sends out {enemyPokemon.Base.Name}");
             yield return new WaitForSeconds(0.6f);
 
 
@@ -178,173 +162,12 @@ public class BattleSystem : MonoBehaviour
     }
 
 
-    // Handle updates : depending on the BattleState "state", exectute the code of one of the folowing functions.
 
     // Handle the case of menus (action, moves, party, move to forget, do you want to switch)
     public void HandleUpdate()
     {
-
         StateMachine.Execute();
-
-        if (state == BattleState_.PartyScreen)
-        {
-            HandlePartyScreenSelection();
-        }
-        else if (state == BattleState_.Bag)
-        {
-            Action onBack = () =>
-            {
-                inventoryUI.gameObject.SetActive(false);
-                state = BattleState_.ActionSelection;
-            };
-
-            Action<ItemBase> onItemUsed = (ItemBase item) =>
-            {
-                StartCoroutine(OnItemUsed(item));
-            };
-
-            // inventoryUI.HandleUpdate(onBack, onItemUsed);
-        }
-        else if (state == BattleState_.AboutToUse)
-        {
-            HandleAboutToUse();
-        }
-        else if (state == BattleState_.MoveToForget)
-        {
-            // define a local function.
-            Action<int> OnMoveSelected = (moveIndex) =>
-            {
-                moveSelectionUI.gameObject.SetActive(false);
-                if (moveIndex == PokemonBase.MaxMoveNumber)
-                {
-                    // dont learn new move
-                    StartCoroutine(dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} did not learn {moveToLearn.Name}"));
-                }
-                else
-                {
-                    // forget selected move
-                    var forgottenMove = playerUnit.Pokemon.Moves[moveIndex].Base.Name;
-                    playerUnit.Pokemon.Moves[moveIndex] = new Move(moveToLearn);
-                    StartCoroutine(dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} forgot {forgottenMove} and learnt {moveToLearn.Name} !"));
-                    
-                }
-                moveToLearn = null;
-                state = BattleState_.RunningTurn;
-            };
-
-            // moveSelectionUI.HandleMoveSelection(OnMoveSelected);
-        }
     }
-
-
-    // Handle the case of Battlestate.PartyScreen
-    public void HandlePartyScreenSelection()
-    {
-        Action onSelected = () =>
-        {
-            var selectedMember = partyScreen.SelectedMember;
-            if (selectedMember.HP <= 0)
-            {
-                partyScreen.SetMessageText("You can't send out a fainted Pokemon to battle...");
-                return;
-            }
-            if (selectedMember == playerUnit.Pokemon)
-            {
-                partyScreen.SetMessageText($"{selectedMember.Base.Name} already in battle.");
-                return;
-            }
-
-            // Return makes sure that we don't deactivate partyScreen
-            partyScreen.gameObject.SetActive(false);
-
-            if (false) // partyScreen.CalledFrom == BattleState.ActionSelection) // The ennemy needs to play its turn
-            {
-                // StartCoroutine(RunTurns(BattleAction.SwitchPokemon));
-            }
-            else // Start a new turn
-            {
-                state = BattleState_.Busy;
-                bool isTrainerAboutToUse = false; // partyScreen.CalledFrom == BattleState.AboutToUse;
-                StartCoroutine(SwitchPokemon(selectedMember, isTrainerAboutToUse));
-            }
-        };
-
-        Action onBack = () =>
-        {
-            if (playerUnit.Pokemon.HP <= 0)
-            {
-                partyScreen.SetMessageText("Do not try to run, you coward !");
-                return;
-            }
-
-            partyScreen.gameObject.SetActive(false);
-            if (false) // partyScreen.CalledFrom == BattleState.AboutToUse)
-            {
-                StartCoroutine(SendNextTrainerPokemon());
-            }
-            else ActionSelection();
-
-            // partyScreen.CalledFrom = null;
-        };
-
-
-        partyScreen.HandleUpdate();
-    }
-
-
-    // Handle the case of Battlestate.AboutToUse
-    public void HandleAboutToUse()
-    {
-        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            AboutToUseChoice = !AboutToUseChoice;
-        }
-        dialogBox.UpdatechoiceBoxSelection(AboutToUseChoice);
-
-        if(Input.GetKeyDown(KeyCode.Return))
-        {
-            dialogBox.EnableChoice(false);
-            if (AboutToUseChoice)
-            {
-                OpenPartyScreen();
-            } 
-            else
-            {
-                StartCoroutine(SendNextTrainerPokemon());
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            dialogBox.EnableChoice(false);
-            StartCoroutine(SendNextTrainerPokemon());
-        }
-    }
-
-
-
-
-
-
-    // Called by HandleFaintedPokemon on a new level and learn new move and more than 4 moves
-    IEnumerator ChooseMoveToForget(Pokemon pokemon, MoveBase newMove)
-    {
-        state = BattleState_.Busy;
-        moveSelectionUI.gameObject.SetActive(true);
-        moveSelectionUI.SetMoveData(pokemon.Moves.Select(x => x.Base).ToList(), newMove);
-        moveToLearn = newMove;
-        state = BattleState_.MoveToForget;
-        yield return dialogBox.TypeDialog($"Choose a move to forget.");
-    }
-
-    // if player and got other pokemons : AboutToUse : sets the BattleState.AboutToUse
-    IEnumerator AboutToUse(Pokemon newPokemon)
-    {
-        state = BattleState_.Busy;
-        yield return dialogBox.TypeDialog($"{trainer.Name} is about to use {newPokemon.Base.Name}. Do you want to change ?");
-        state = BattleState_.AboutToUse;
-        dialogBox.EnableChoice(true);
-    }
-
 
     /* 
      * BattleOver : 
@@ -363,24 +186,6 @@ public class BattleSystem : MonoBehaviour
     }
 
 
-
-
-
-    /*
-     * Called by HandleActionSelection
-     * Or CheckForBattleOver
-     * Or AboutToUse
-     * playerParty.CalledFrom strores the value of the current Battlestate (ActionSelection, AboutToUse, RunningTurn)
-     *      sets BattleState.PartyScreen
-     *      initialize the partyScreen with setPartyData : takes the player party and initialize their huds
-     */
-    void OpenPartyScreen()
-    {
-        // partyScreen.CalledFrom = state;
-        state = BattleState_.PartyScreen;
-        partyScreen.gameObject.SetActive(true);
-    }
-
     /*
      * Called by RunTurns : the player called switch pokemon as an action
      * Or PartyScreen : player sitch at the end of a turn (fainted pokemon or trainer about to use)
@@ -388,7 +193,7 @@ public class BattleSystem : MonoBehaviour
      *      2. Setup PlayerUnit
      *      3. partyScreen.CalledFrom (means called from about to use) => Send next trainer pokemon
      */
-    IEnumerator SwitchPokemon(Pokemon newPokemon, bool isTrainerAboutToUse = false)
+    public IEnumerator SwitchPokemon(Pokemon newPokemon)
     {
         // If the current pokemon is still up, play come back animation
         if (playerUnit.Pokemon.HP >0)
@@ -403,70 +208,26 @@ public class BattleSystem : MonoBehaviour
         playerUnit.Setup(newPokemon);
         dialogBox.SetMoveNames(newPokemon.Moves);
         yield return dialogBox.TypeDialog($"Go {newPokemon.Base.Name} ! I know you can do it !");
-
-        if (false) // partyScreen.CalledFrom == BattleState.ActionSelection) 
-        {
-            state = BattleState_.RunningTurn; //Switch due to player action switch
-        }
-        else
-        {
-            if (isTrainerAboutToUse)
-            {
-                yield return SendNextTrainerPokemon(); // Switch due to trainer fainted pokemon
-            }
-            else
-            {
-                //ActionSelection(); // Switch due to player fainted pokemon
-
-                state = BattleState_.RunningTurn;
-            }
-        }
     }
 
     // Called by SwitchPokemon, HandleAboutToUse or HandlePartyScreen : plays animation and setup pokemon
-    IEnumerator SendNextTrainerPokemon()
+    public IEnumerator SendNextTrainerPokemon()
     {
-        state = BattleState_.Busy;
         var nextPokemon = TrainerParty.GetHealthyPokemon();
 
         enemyUnit.Setup(nextPokemon);
-        yield return dialogBox.TypeDialog($"{trainer.Name} sends out {nextPokemon.Base.Name}");
-
-        state = BattleState_.RunningTurn;
+        yield return dialogBox.TypeDialog($"{Trainer.Name} sends out {nextPokemon.Base.Name}");
     }
 
-
-
-    // Called by HandleActionSelection on player choose bag
-    void OpenBag()
-    {
-        state = BattleState_.Bag;
-        inventoryUI.gameObject.SetActive(true);
-    }
 
     // Called by the UIInventory in its UseItem function
-    IEnumerator OnItemUsed(ItemBase item)
-    {
-        state = BattleState_.Busy;
-        inventoryUI.gameObject.SetActive(false);
-
-        if (item is PokeballItem)
-        {
-            yield return ThrowPokeball((PokeballItem)item);
-        }
-
-        // StartCoroutine(RunTurns(BattleAction.UseItem));
-    }
 
     // Called by RunTurns in playerAction Bag : plays animation and calls TryToCatchPokemon to compute probability to capture
-    IEnumerator ThrowPokeball(PokeballItem pokeballItem)
+    public IEnumerator ThrowPokeball(PokeballItem pokeballItem)
     {
-        state = BattleState_.Busy;
-
         if (IsTrainerBattle)
         {
             yield return dialogBox.TypeDialog("You can't capture a trainer's Pokemon !");
-            state = BattleState_.RunningTurn;
             yield break;
         }
 
@@ -514,8 +275,6 @@ public class BattleSystem : MonoBehaviour
             else yield return dialogBox.TypeDialog($"Almost got it !");
 
             Destroy(pokeball);
-
-            state = BattleState_.RunningTurn;
         }
     }
 
@@ -538,28 +297,5 @@ public class BattleSystem : MonoBehaviour
             shake++;
         }
         return shake;
-    }
-
-
-
-
-
-
-
-    // End of RunTurns : ActionSelection : set the BattleState.ActionSelection
-    void ActionSelection()
-    {
-        state = BattleState_.ActionSelection;
-        dialogBox.SetDialog("What will you do ?");
-        dialogBox.EnableActionSelector(true);
-    }
-
-    // Called by HandleActionSelection : sets BattleState.MoveSelection
-    void MoveSelection()
-    {
-        state = BattleState_.MoveSelection;
-        dialogBox.EnableActionSelector(false);
-        dialogBox.EnableDialog(false);
-        dialogBox.EnableMoveSelector(true);
     }
 }

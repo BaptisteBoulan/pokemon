@@ -9,7 +9,6 @@ using UnityEngine.UI;
 using Utils.GenericSelectionUI;
 
 
-public enum InventoryUIstate { ItemSelection, PartySelection, Busy, MoveToForget}
 
 public class InventoryUI : SelectionUI<TextSlot>
 {
@@ -30,12 +29,8 @@ public class InventoryUI : SelectionUI<TextSlot>
     [SerializeField] Image leftArrow;
     [SerializeField] Image rightArrow;
 
-    Action<ItemBase> onItemUsed;
-
     bool showUpArrow;
     bool showDownArrow;
-
-    InventoryUIstate state;
 
     
     const int itemInViewPort = 8;

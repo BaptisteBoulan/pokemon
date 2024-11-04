@@ -11,6 +11,8 @@ public class UseItemState : State<GameController>
 
     Inventory inventory;
 
+    public bool ItemUsed { get; private set; }
+
     public static UseItemState i { get; private set; }
 
     private void Awake()
@@ -23,6 +25,7 @@ public class UseItemState : State<GameController>
     public override void Enter(GameController owner)
     {
         gc = owner;
+        ItemUsed = false;
         StartCoroutine(UseItem());
     }
 
@@ -41,7 +44,8 @@ public class UseItemState : State<GameController>
 
         var pokemon = partyScreen.SelectedMember;
 
-        var canBeUsed = inventory.UseItem(item, pokemon);
+        ItemUsed = inventory.UseItem(item, pokemon);
+
 
         if (item is TmItem)
         {
@@ -51,10 +55,10 @@ public class UseItemState : State<GameController>
         if (item is EvolutionItem)
         {
             var pokemonToEvolve = pokemon.CheckForEvolution((EvolutionItem)item);
-            yield return EvolutionManager.i.Evolve(pokemon, pokemonToEvolve);
+            yield return EvolutionState.i.Evolve(pokemon, pokemonToEvolve);
             partyScreen.SetPartyData();
         }
-        else if (canBeUsed)
+        else if (ItemUsed)
         {
             if (item is RecoveryItem)
                 yield return DialogManager.Instance.ShowDialogText($"{item.Name} used on {pokemon.Base.Name}");

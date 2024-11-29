@@ -317,6 +317,15 @@ public int MaxHP { get; private set; }
         }
         return false;
     }
+    public float GetNormalizedXP()
+    {
+        int currentLevelXP = Base.GetExpForLevel(Level);
+        int nextLevelXp = Base.GetExpForLevel(Level + 1);
+
+        float normalizedXP = (float)(XP - currentLevelXP) / (nextLevelXp - currentLevelXP);
+        return Mathf.Clamp(normalizedXP, 0f, 1f);
+    }
+
 
     public LearnableMove GetLearnableMoveAtCurrentLevel()
     {

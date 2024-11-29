@@ -53,7 +53,7 @@ public class PartyState : State<GameController>
         else if (prevState == GameMenuState.i)
         {
             // show summary
-            Debug.Log("summary " + selection);
+            StartCoroutine(ShowDetailsPokemon(selection));
         } else if (prevState == BattleState.i)
         {
             var battleState = prevState as BattleState;
@@ -95,6 +95,39 @@ public class PartyState : State<GameController>
             }
         }
         gc.StateMachine.Pop();
+    }
+
+    IEnumerator ShowDetailsPokemon(int selection)
+    {
+        DynamicMenuState.i.MenuItems = new List<string>()
+            {
+                "Show summary",
+                "Switch position",
+                "Give item",
+                "Cancel",
+            };
+
+        yield return gc.StateMachine.PushAndWait(DynamicMenuState.i);
+        var selectedItem = DynamicMenuState.i.SelectedItem;
+        if (selectedItem == 0)
+        {
+            Debug.Log("sumary");
+            SummaryScreenState.i.SelectedPokemonIndex = selection;
+            yield return gc.StateMachine.PushAndWait(SummaryScreenState.i);
+        }
+        else if (selectedItem == 1)
+        {
+            Debug.Log("Switch");
+        }
+        else if (selectedItem == 2)
+        {
+            Debug.Log("Item");
+        }
+        else if (selectedItem == 3)
+        {
+            Debug.Log("Cancel");
+            yield break;
+        }
     }
 }
 

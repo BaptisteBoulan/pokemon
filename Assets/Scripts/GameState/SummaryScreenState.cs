@@ -10,8 +10,12 @@ public class SummaryScreenState : State<GameController>
     public static SummaryScreenState i { get; private set; }
 
     [SerializeField] SummaryScreenUI summaryScreenUI;
+    [SerializeField] GameObject skillsUI;
+    [SerializeField] GameObject movesUI;
 
     List<Pokemon> pokemons;
+
+    SummaryPage page = SummaryPage.Skills;
 
     public int SelectedPokemonIndex { get; set; } = 0;
 
@@ -34,6 +38,7 @@ public class SummaryScreenState : State<GameController>
         summaryScreenUI.gameObject.SetActive(true);
         summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
         summaryScreenUI.SetSkills();
+        summaryScreenUI.SetMoves();
     }
 
     public override void Execute()
@@ -46,6 +51,7 @@ public class SummaryScreenState : State<GameController>
             SelectedPokemonIndex = (SelectedPokemonIndex + 1) % pokemons.Count;
             summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
             summaryScreenUI.SetSkills();
+            summaryScreenUI.SetMoves();
         }
 
 
@@ -54,6 +60,23 @@ public class SummaryScreenState : State<GameController>
             SelectedPokemonIndex = (SelectedPokemonIndex + pokemons.Count - 1) % pokemons.Count;
             summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
             summaryScreenUI.SetSkills();
+            summaryScreenUI.SetMoves();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            if (page == SummaryPage.Skills) 
+            {
+                page = SummaryPage.Moves;
+                skillsUI.SetActive(false);
+                movesUI.SetActive(true);
+            }
+            else
+            {
+                page = SummaryPage.Skills;
+                skillsUI.SetActive(true);
+                movesUI.SetActive(false);
+            }
         }
     }
 
@@ -62,3 +85,5 @@ public class SummaryScreenState : State<GameController>
         summaryScreenUI.gameObject.SetActive(false);
     }
 }
+
+public enum SummaryPage { Skills, Moves }

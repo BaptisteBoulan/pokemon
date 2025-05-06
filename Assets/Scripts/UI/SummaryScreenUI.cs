@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.GenericSelectionUI;
 
-public class SummaryScreenUI : MonoBehaviour
+public class SummaryScreenUI : SelectionUI<TextSlot>
 {
     [Header("Left")]
     [SerializeField] Image pokemonImage;
@@ -23,13 +27,44 @@ public class SummaryScreenUI : MonoBehaviour
 
 
     [Header("Moves")]
-    [SerializeField] List<Text> MovesType;
-    [SerializeField] List<Text> MovesName;
-    [SerializeField] List<Text> MovesPP;
-    [SerializeField] Text MoveDescription;
+    [SerializeField] List<Text> moveTypes;
+    [SerializeField] List<Text> moveNames;
+    [SerializeField] List<Text> movePPs;
+    [SerializeField] Text moveDescription;
+    [SerializeField] Text powerText;
+    [SerializeField] Text accuracytext;
+    [SerializeField] GameObject moveStatsUI;
+
+    List<TextSlot> moveSlots;
 
 
     Pokemon pokemon;
+
+    bool inMoveSelection;
+
+    public bool InMoveSelection
+    {
+        get => inMoveSelection;
+        set
+        {
+            inMoveSelection = value;
+            if (inMoveSelection)
+            {
+                SetItems(moveSlots.Take(pokemon.Moves.Count).ToList());
+                moveStatsUI.SetActive(true);
+            }
+            else
+            {
+                ClearItems();
+                moveStatsUI.SetActive(false);
+            }
+        }
+    }
+
+    private void Start()
+    {
+        moveSlots = moveNames.Select(m => m.GetComponent<TextSlot>()).ToList();
+    }
 
     public void SetBasicDetails(Pokemon pokemon)
     {
@@ -58,6 +93,8 @@ public class SummaryScreenUI : MonoBehaviour
 
     public void SetMoves()
     {
+        moveDescription.text = "";
+
         var moves = pokemon.Moves;
 
         for (int i = 0; i < PokemonBase.MaxMoveNumber; i++)
@@ -66,17 +103,35 @@ public class SummaryScreenUI : MonoBehaviour
             {
                 var move = moves[i];
 
-                MovesType[i].text = "" + move.GetType();
-                MovesName[i].text = "" + move.Base.Name;
-                MovesType[i].text = move.PP + "/" + move.Base.MaxPP;     
+                moveTypes[i].text = "" + move.Base.Type;
+                moveNames[i].text = "" + move.Base.Name;
+                movePPs[i].text = move.PP + "/" + move.Base.MaxPP;     
             }
             else
             {
-                MovesType[i].text = "-";
-                MovesName[i].text = "-";
-                MovesType[i].text = "-/-";
+                moveTypes[i].text = "-";
+                moveNames[i].text = "-";
+                movePPs[i].text = "-/-";
             }
 
         }
+    }
+
+    public override void HandleUpdate()
+    {
+        if (inMoveSelection)
+        {
+            base.HandleUpdate();
+            var move = pokemon.Moves[selectedItem].Base;
+
+            moveDescription.text = move.Description;
+
+            if (move.Power > 0) powerText.text = "" + move.Power;
+            else powerText.text = "-";
+
+            if (move.AlwaysHits) accuracytext.text = "-";
+            else accuracytext.text = "" + move.Accuracy;
+        }
+
     }
 }

@@ -8,6 +8,8 @@ public class PokemonParty : MonoBehaviour
 {
     [SerializeField] List<Pokemon> pokemons;
 
+    PokemonStorageBoxes boxes;
+
     public event Action OnUpdated;
 
     public List<Pokemon> Pokemons
@@ -19,7 +21,7 @@ public class PokemonParty : MonoBehaviour
         set
         {
             pokemons = value;
-            OnUpdated.Invoke();
+            OnUpdated?.Invoke();
         }
     }
 
@@ -34,6 +36,8 @@ public class PokemonParty : MonoBehaviour
         {
             pokemon.Init();
         }
+
+        boxes = GetComponent<PokemonStorageBoxes>();
     }
 
     public Pokemon GetHealthyPokemon()
@@ -46,11 +50,13 @@ public class PokemonParty : MonoBehaviour
         if (pokemons.Count < 6)
         {
             pokemons.Add(pokemon);
+
             OnUpdated?.Invoke();
         }
         else
-        {
-            // send to PC
+        { 
+            boxes.AddPokemonToEmptySlot(pokemon);
+            StartCoroutine(DialogManager.Instance.ShowDialogText($"{pokemon.Base.Name} was added to your PC"));
         }
     }
 
@@ -73,6 +79,11 @@ public class PokemonParty : MonoBehaviour
         {
             pokemon.Heal();
         }
+        OnUpdated?.Invoke();
+    }
+
+    public void PartyUpdated()
+    {
         OnUpdated?.Invoke();
     }
 }

@@ -50,8 +50,6 @@ public class QuestsList : MonoBehaviour, ISavable
         var saveData = state as List<QuestSaveData>;
         if (saveData != null)
         {
-            Debug.Log("QuestList");
-            Debug.Log(quests.Count());
             quests = saveData.Select(q => new Quest(q)).ToList();
             OnUpdated?.Invoke();
         }

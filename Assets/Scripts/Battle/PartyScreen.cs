@@ -19,6 +19,7 @@ public class PartyScreen : SelectionUI<TextSlot>
     public void Init()
     {
         SetPartyData();
+        party.OnUpdated += ClearItems;
         party.OnUpdated += SetPartyData;
     }
 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils.StateMachine;
 
@@ -9,11 +10,21 @@ public class PartyState : State<GameController>
 
     public Pokemon SelectedPokemon;
 
+    PokemonParty party;
+
+    bool isSwitchingPosition = false;
+    int selectedIndexForSwitching = 0;
+
     public static PartyState i { get; private set; }
 
     private void Awake()
     {
         i = this;
+    }
+
+    private void Start()
+    {
+        party = PlayerController.i.GetComponent<PokemonParty>();
     }
 
     GameController gc;
@@ -99,6 +110,18 @@ public class PartyState : State<GameController>
 
     IEnumerator ShowDetailsPokemon(int selection)
     {
+        if (isSwitchingPosition)
+        {
+            // Swap Pokémon positions
+            (party.Pokemons[selectedIndexForSwitching], party.Pokemons[selection]) =
+                (party.Pokemons[selection], party.Pokemons[selectedIndexForSwitching]);
+
+            isSwitchingPosition = false; // Reset switching state
+            partyScreen.ClearItems();
+            partyScreen.SetPartyData(); // Refresh the UI
+            yield break; // Exit coroutine
+        }
+
         DynamicMenuState.i.MenuItems = new List<string>()
             {
                 "Show summary",
@@ -111,13 +134,15 @@ public class PartyState : State<GameController>
         var selectedItem = DynamicMenuState.i.SelectedItem;
         if (selectedItem == 0)
         {
-            Debug.Log("sumary");
+            // Summary
             SummaryScreenState.i.SelectedPokemonIndex = selection;
             yield return gc.StateMachine.PushAndWait(SummaryScreenState.i);
         }
         else if (selectedItem == 1)
         {
-            Debug.Log("Switch");
+            // Switch Pokemon
+            isSwitchingPosition = true;
+            selectedIndexForSwitching = selection;
         }
         else if (selectedItem == 2)
         {

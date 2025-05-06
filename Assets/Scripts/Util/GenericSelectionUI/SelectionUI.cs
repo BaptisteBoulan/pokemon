@@ -15,6 +15,11 @@ namespace Utils.GenericSelectionUI
 
         float selectionTimer = 0f;
 
+        public List<T> Items { 
+            get { return items; }
+            set { items = value; } 
+        }
+
         public event Action<int> OnSelected;
         public event Action OnBack;
 

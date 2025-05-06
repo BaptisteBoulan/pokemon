@@ -19,7 +19,7 @@ public class EssentialObjectSpawner : MonoBehaviour
             {
                 spawnPos = grid.transform.position;
             }
-            Instantiate(essentialObjectsPrefab, spawnPos, Quaternion.identity);
+            Instantiate(essentialObjectsPrefab, transform.position +  spawnPos, Quaternion.identity);
         }
     }
 }

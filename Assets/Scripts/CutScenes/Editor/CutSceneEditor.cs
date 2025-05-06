@@ -19,6 +19,10 @@ public class CutSceneEditor : Editor
             {
                 cutscene.AddAction(new NPCIntaractableAction());
             }
+            else if (GUILayout.Button("Battle"))
+            {
+                cutscene.AddAction(new StartBattleAction());
+            }
         }
         
 
@@ -53,6 +57,18 @@ public class CutSceneEditor : Editor
 
         using (var scope = new GUILayout.HorizontalScope())
         {
+            if (GUILayout.Button("Enable Pickup"))
+            {
+                cutscene.AddAction(new EnablePickupAction());
+            }
+            else if (GUILayout.Button("Disable Pickup"))
+            {
+                cutscene.AddAction(new DisablePickupAction());
+            }
+        }
+
+        using (var scope = new GUILayout.HorizontalScope())
+        {
             if (GUILayout.Button("Fade In"))
             {
                 cutscene.AddAction(new FadeInAction());
@@ -60,6 +76,14 @@ public class CutSceneEditor : Editor
             else if (GUILayout.Button("Fade Out"))
             {
                 cutscene.AddAction(new FadeOutAction());
+            }
+        }
+
+        using (var scope = new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Move Object"))
+            {
+                cutscene.AddAction(new MoveObjectAction());
             }
         }
 

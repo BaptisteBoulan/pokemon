@@ -6,24 +6,30 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GamePlay.unity
+    path: Assets/Scenes/TestScenes/GamePlay.unity
     guid: c296537f4b82e504b855e69016aab9f8
   - enabled: 1
-    path: Assets/Scenes/Conlie.unity
+    path: Assets/Scenes/TestScenes/Conlie.unity
     guid: e36fded4cb7cee645803fb23281bda55
   - enabled: 1
-    path: Assets/Scenes/House1.unity
+    path: Assets/Scenes/TestScenes/House1.unity
     guid: e036a0c22ee552745ab5fb879053cd7c
   - enabled: 1
-    path: Assets/Scenes/Route1_1.unity
+    path: Assets/Scenes/TestScenes/Route1_1.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Route1_2.unity
+    path: Assets/Scenes/TestScenes/Route1_2.unity
     guid: 8dab2029acca3b149af70554e7e0c44a
   - enabled: 1
-    path: Assets/Scenes/Route1_3.unity
+    path: Assets/Scenes/TestScenes/Route1_3.unity
     guid: 93e9e3f44534b704c807034f5f02c401
   - enabled: 1
-    path: Assets/Scenes/Route1_4.unity
+    path: Assets/Scenes/TestScenes/Route1_4.unity
     guid: f50d0c560eb63ee41baa6d3ad334c54c
+  - enabled: 1
+    path: Assets/Scenes/Cendrebourg/Cendrebourg_1.unity
+    guid: 846879daa09203f4fa63631206c4962c
+  - enabled: 1
+    path: Assets/Scenes/Cendrebourg/GamePlay_Cendrebourg.unity
+    guid: 4f270748e633416438b8361e9ad7596f
   m_configObjects: {}

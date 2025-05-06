@@ -11,6 +11,7 @@ public class TrainerController : MonoBehaviour, Interactable, ISavable
     [SerializeField] Sprite sprite;
     [SerializeField] string name;
 
+
     Character character;
     bool battleLost = false;
 
@@ -72,7 +73,6 @@ public class TrainerController : MonoBehaviour, Interactable, ISavable
     {
         //Look at the player
         character.LookToward(initiator.position);
-
         if (!battleLost)
         {
             //Show excalametion

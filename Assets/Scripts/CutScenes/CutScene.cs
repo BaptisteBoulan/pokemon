@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CutScene : MonoBehaviour, IPlayerTriggerable
 {
+    [SerializeField] bool disableAtEndOfCutScene = false;
+
     [SerializeReference]
     [SerializeField] List<CutSceneAction> actions = new List<CutSceneAction>();
 
@@ -40,5 +42,10 @@ public class CutScene : MonoBehaviour, IPlayerTriggerable
         }
 
         GameController.Instance.StateMachine.Pop();
+
+        if (disableAtEndOfCutScene)
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

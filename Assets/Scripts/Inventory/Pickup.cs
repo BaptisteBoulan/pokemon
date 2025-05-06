@@ -10,6 +10,11 @@ public class Pickup : MonoBehaviour, Interactable, ISavable
 
     public bool Used {get;set; }
 
+    private void Awake()
+    {
+        GetComponent<SpriteRenderer>().sprite = item.Icon;
+    }
+
     public IEnumerator Interact(Transform initiator)
     {
         if (!Used)
@@ -19,16 +24,19 @@ public class Pickup : MonoBehaviour, Interactable, ISavable
             else
                 yield return DialogManager.Instance.ShowDialogText($"You found {count} {item.Name}s !");
 
-            initiator.GetComponent<Inventory>().AddItem(item,count);
+            initiator.GetComponent<Inventory>().AddItem(item, count);
 
             Used = true;
 
             GetComponent<SpriteRenderer>().enabled = false;
             GetComponent<BoxCollider2D>().enabled = false;
-        }
 
-        
-        
+            var cutScene = GetComponent<CutScene>();
+            if (cutScene != null )
+            {
+                cutScene.OnPlayerTriggered(initiator.GetComponent<PlayerController>());
+            }
+        }
     }
 
     public object CaptureState()

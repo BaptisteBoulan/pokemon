@@ -118,7 +118,9 @@ public class Inventory : MonoBehaviour, ISavable
     public ItemBase GetItem(int itemIndex, int categoryIndex)
     {
         var currentSlots = GetSlotsByCategory(categoryIndex);
-        return currentSlots[itemIndex].Item;
+        if (currentSlots.Count > 0)
+            return currentSlots[itemIndex].Item;
+        else return null;
     }
 
     public object CaptureState()

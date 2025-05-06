@@ -43,41 +43,68 @@ public class SummaryScreenState : State<GameController>
 
     public override void Execute()
     {
-        if (Input.GetKeyDown(KeyCode.X))
-            gc.StateMachine.Pop();
-
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        if (!summaryScreenUI.InMoveSelection)
         {
-            SelectedPokemonIndex = (SelectedPokemonIndex + 1) % pokemons.Count;
-            summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
-            summaryScreenUI.SetSkills();
-            summaryScreenUI.SetMoves();
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            SelectedPokemonIndex = (SelectedPokemonIndex + pokemons.Count - 1) % pokemons.Count;
-            summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
-            summaryScreenUI.SetSkills();
-            summaryScreenUI.SetMoves();
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            if (page == SummaryPage.Skills) 
+            // Previous Pokemon
+            if (Input.GetKeyDown(KeyCode.DownArrow))
             {
-                page = SummaryPage.Moves;
-                skillsUI.SetActive(false);
-                movesUI.SetActive(true);
+                SelectedPokemonIndex = (SelectedPokemonIndex + 1) % pokemons.Count;
+                summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
+                summaryScreenUI.SetSkills();
+                summaryScreenUI.SetMoves();
+            }
+
+            // Next Pokemon
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                SelectedPokemonIndex = (SelectedPokemonIndex + pokemons.Count - 1) % pokemons.Count;
+                summaryScreenUI.SetBasicDetails(pokemons[SelectedPokemonIndex]);
+                summaryScreenUI.SetSkills();
+                summaryScreenUI.SetMoves();
+            }
+
+            // Next Page
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                if (page == SummaryPage.Skills)
+                {
+                    page = SummaryPage.Moves;
+                    skillsUI.SetActive(false);
+                    movesUI.SetActive(true);
+                }
+                else
+                {
+                    page = SummaryPage.Skills;
+                    skillsUI.SetActive(true);
+                    movesUI.SetActive(false);
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (page == SummaryPage.Moves && !summaryScreenUI.InMoveSelection)
+            {
+                summaryScreenUI.InMoveSelection = true;
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            if (summaryScreenUI.InMoveSelection) 
+            { 
+                summaryScreenUI.InMoveSelection = false; 
             }
             else
             {
-                page = SummaryPage.Skills;
-                skillsUI.SetActive(true);
-                movesUI.SetActive(false);
+                gc.StateMachine.Pop();
+                return;
             }
+
+
         }
+
+        summaryScreenUI.HandleUpdate();
+
     }
 
     public override void Exit()

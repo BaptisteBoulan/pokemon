@@ -44,7 +44,6 @@ public class BattleSystem : MonoBehaviour
     // Menu choices
     public int CurrentAction { get; private set; }
     public int CurrentMove { get; private set; }
-    bool AboutToUseChoice = true;
 
     MoveBase moveToLearn;
 
